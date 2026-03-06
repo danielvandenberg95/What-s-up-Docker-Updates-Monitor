@@ -1,6 +1,6 @@
 import logging
 import aiohttp
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -35,7 +35,7 @@ async def get_containers(host, port):
                 _LOGGER.error("Failed to fetch containers from WUD")
                 return []
 
-class WUDContainerSensor(Entity):
+class WUDContainerSensor(SensorEntity):
     """Representation of a What's Up Docker container sensor."""
 
     def __init__(self, container, config_entry: ConfigEntry, instance_name: str):
@@ -83,8 +83,3 @@ class WUDContainerSensor(Entity):
             "version": self._container.get("version", "unknown"),
             "update_available": self._state,
         }
-
-    async def async_update(self):
-        """Fetch updated data from the API."""
-        # Optionally re-fetch container data if needed
-        pass

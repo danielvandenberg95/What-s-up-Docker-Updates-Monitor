@@ -35,7 +35,7 @@ class WUDMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
-        return WUDMonitorOptionsFlowHandler(config_entry)
+        return WUDMonitorOptionsFlowHandler()
 
 class WUDMonitorOptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options flow."""
