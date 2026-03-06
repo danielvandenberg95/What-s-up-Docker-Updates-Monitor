@@ -51,26 +51,16 @@ async def get_containers(host, port):
                     return await response.json()
                 else:
                     _LOGGER.error(
-                        "Failed to fetch containers from WUD at %s%s - HTTP %s: %s",
-                        host,
-                        f":{port}" if port else "",
+                        "Failed to fetch containers from WUD at %s - HTTP %s: %s",
+                        url,
                         response.status,
                         await response.text(),
                     )
                     return []
-    except aiohttp.ClientError as err:
-        _LOGGER.error(
-            "Client error when fetching containers from WUD at %s%s: %s",
-            host,
-            f":{port}" if port else "",
-            err,
-        )
-        return []
     except Exception as err:
         _LOGGER.error(
-            "Unexpected error when fetching containers from WUD at %s%s: %s",
-            host,
-            f":{port}" if port else "",
+            "Unexpected error when fetching containers from WUD at %s: %s",
+            url,
             err,
         )
         return []

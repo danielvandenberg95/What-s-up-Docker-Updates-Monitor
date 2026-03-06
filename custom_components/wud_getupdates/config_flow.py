@@ -56,15 +56,11 @@ class WUDMonitorOptionsFlowHandler(config_entries.OptionsFlow):
                 step_id="init",
                 data_schema=vol.Schema({
                     vol.Optional("host", default=self.config_entry.data.get("host")): str,
-                    vol.Optional(
-                        "port",
-                        default=existing_port,
-                    ): str,
+                    vol.Optional("port", default=existing_port): str,
                     vol.Optional("instance_name", default=self.config_entry.data.get("instance_name")): str,
                 })
             )
 
-        # update_entry expects the same keys so make sure port is set even if empty
         self.hass.config_entries.async_update_entry(
             self.config_entry,
             data={
