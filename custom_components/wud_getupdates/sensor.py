@@ -27,13 +27,36 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 async def get_containers(host, port):
     """Fetch containers from the WUD API."""
     url = f"http://{host}:{port}/api/containers"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                return await response.json()
-            else:
-                _LOGGER.error("Failed to fetch containers from WUD")
-                return []
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    _LOGGER.error(
+                        "Failed to fetch containers from WUD at %s:%s - HTTP %s: %s",
+                        host,
+                        port,
+                        response.status,
+                        await response.text(),
+                    )
+                    return []
+    except aiohttp.ClientError as err:
+        _LOGGER.error(
+            "Client error when fetching containers from WUD at %s:%s: %s",
+            host,
+            port,
+            err,
+        )
+        return []
+    except Exception as err:
+        _LOGGER.error(
+            "Unexpected error when fetching containers from WUD at %s:%s: %s",
+            host,
+            port,
+            err,
+        )
+        return []
 
 class WUDContainerSensor(SensorEntity):
     """Representation of a What's Up Docker container sensor."""
