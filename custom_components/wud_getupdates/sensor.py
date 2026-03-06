@@ -25,8 +25,25 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
     async_add_entities(sensors, True)
 
 async def get_containers(host, port):
-    """Fetch containers from the WUD API."""
-    url = f"http://{host}:{port}/api/containers"
+    """Fetch containers from the WUD API.
+
+    The host argument may include a scheme (http:// or https://). If no scheme
+    is provided we default to http. The port value is optional; if it's empty or
+    evaluates to False we omit the ":port" portion of the URL entirely.
+    """
+    # remove any trailing slashes so concatenation below is clean
+    host = host.rstrip("/")
+
+    # ensure we have a scheme
+    if not host.lower().startswith(("http://", "https://")):
+        host = "http://" + host
+
+    # construct base URL and append port only when it's set
+    if port:
+        url = f"{host}:{port}/api/containers"
+    else:
+        url = f"{host}/api/containers"
+
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
@@ -34,26 +51,26 @@ async def get_containers(host, port):
                     return await response.json()
                 else:
                     _LOGGER.error(
-                        "Failed to fetch containers from WUD at %s:%s - HTTP %s: %s",
+                        "Failed to fetch containers from WUD at %s%s - HTTP %s: %s",
                         host,
-                        port,
+                        f":{port}" if port else "",
                         response.status,
                         await response.text(),
                     )
                     return []
     except aiohttp.ClientError as err:
         _LOGGER.error(
-            "Client error when fetching containers from WUD at %s:%s: %s",
+            "Client error when fetching containers from WUD at %s%s: %s",
             host,
-            port,
+            f":{port}" if port else "",
             err,
         )
         return []
     except Exception as err:
         _LOGGER.error(
-            "Unexpected error when fetching containers from WUD at %s:%s: %s",
+            "Unexpected error when fetching containers from WUD at %s%s: %s",
             host,
-            port,
+            f":{port}" if port else "",
             err,
         )
         return []
